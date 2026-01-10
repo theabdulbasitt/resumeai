@@ -41,7 +41,7 @@
     --gradient-accent: linear-gradient(135deg, hsl(15 85% 60%) 0%, hsl(25 90% 55%) 100%);
     --gradient-hero: linear-gradient(180deg, hsl(210 25% 98%) 0%, hsl(220 30% 96%) 100%);
     --gradient-card: linear-gradient(145deg, hsl(0 0% 100%) 0%, hsl(210 20% 99%) 100%);
-    
+
     --shadow-sm: 0 1px 2px 0 hsl(222 47% 11% / 0.05);
     --shadow-md: 0 4px 6px -1px hsl(222 47% 11% / 0.08), 0 2px 4px -2px hsl(222 47% 11% / 0.05);
     --shadow-lg: 0 10px 15px -3px hsl(222 47% 11% / 0.08), 0 4px 6px -4px hsl(222 47% 11% / 0.05);
@@ -59,22 +59,23 @@
   }
 
   .dark {
-    --background: 222 47% 8%;
+    --background: 222 47% 4%;
+    /* Deepest blue/black */
     --foreground: 210 20% 98%;
 
-    --card: 222 47% 11%;
+    --card: 222 47% 8%;
     --card-foreground: 210 20% 98%;
 
-    --popover: 222 47% 11%;
+    --popover: 222 47% 8%;
     --popover-foreground: 210 20% 98%;
 
     --primary: 220 70% 55%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 217 33% 17%;
+    --secondary: 217 33% 12%;
     --secondary-foreground: 210 20% 98%;
 
-    --muted: 217 33% 17%;
+    --muted: 217 33% 12%;
     --muted-foreground: 215 20% 65%;
 
     --accent: 15 85% 55%;
@@ -83,18 +84,22 @@
     --destructive: 0 63% 31%;
     --destructive-foreground: 210 20% 98%;
 
-    --border: 217 33% 17%;
-    --input: 217 33% 17%;
+    --border: 217 33% 14%;
+    --input: 217 33% 14%;
     --ring: 220 70% 55%;
 
-    --sidebar-background: 240 5.9% 10%;
+    --sidebar-background: 222 47% 4%;
     --sidebar-foreground: 240 4.8% 95.9%;
     --sidebar-primary: 220 70% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent: 217 33% 12%;
     --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-border: 217 33% 14%;
     --sidebar-ring: 220 70% 55%;
+
+    /* Update gradients for dark mode */
+    --gradient-hero: linear-gradient(180deg, hsl(222 47% 4%) 0%, hsl(222 47% 8%) 100%);
+    --gradient-card: linear-gradient(145deg, hsl(222 47% 8%) 0%, hsl(222 47% 6%) 100%);
   }
 }
 
@@ -108,7 +113,12 @@
     font-family: 'Inter', system-ui, sans-serif;
   }
 
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
   }
 }

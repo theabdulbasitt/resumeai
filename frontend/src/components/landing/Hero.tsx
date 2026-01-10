@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { ArrowRight, Sparkles, Zap, CheckCircle } from 'lucide-react';
+import { ArrowRight, Sparkles, Zap, CheckCircle, FileText } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 
@@ -21,7 +21,7 @@ export const Hero = () => {
             transition={{ duration: 0.5 }}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-8"
           >
-            <Sparkles className="w-4 h-4 text-primary" />
+            <FileText className="w-4 h-4 text-primary" />
             <span className="text-sm font-medium text-primary">AI-Powered Resume Builder</span>
           </motion.div>
 
@@ -43,7 +43,7 @@ export const Hero = () => {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto mb-8"
           >
-            Create professional, ATS-friendly resumes with AI-enhanced bullet points. 
+            Create professional, ATS-friendly resumes with AI-enhanced bullet points.
             Stand out from the crowd and land your dream job.
           </motion.p>
 
@@ -110,7 +110,7 @@ export const Hero = () => {
                   </div>
                 </div>
               </div>
-              
+
               {/* Preview content */}
               <div className="p-8 bg-background">
                 <div className="grid md:grid-cols-2 gap-8">
@@ -126,7 +126,7 @@ export const Hero = () => {
                       <div className="h-8 w-16 bg-primary/20 rounded-full" />
                     </div>
                   </div>
-                  
+
                   {/* Resume preview */}
                   <div className="bg-card border border-border rounded-lg p-6 shadow-sm">
                     <div className="space-y-4">

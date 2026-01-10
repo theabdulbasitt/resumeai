@@ -9,6 +9,7 @@ import { TemplateSelector } from '@/components/builder/TemplateSelector';
 import { initialResumeData, type ResumeData } from '@/types/resume';
 import { toast } from 'sonner';
 import { resume, ai } from '@/services/api';
+import { ThemeToggle } from '@/components/ThemeToggle';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
 
@@ -154,6 +155,7 @@ const Builder = () => {
                 {showPreview ? 'Hide' : 'Preview'}
               </Button>
 
+              <ThemeToggle />
               <Button variant="hero" size="sm" onClick={handleDownloadPDF}>
                 <Download className="w-4 h-4 mr-2" />
                 PDF
