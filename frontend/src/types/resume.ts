@@ -23,6 +23,7 @@ export interface Project {
   description: string;
   startDate: string;
   endDate: string;
+  url?: string;
   bullets: string[];
 }
 
@@ -35,14 +36,35 @@ export interface LeadershipRole {
   description: string;
 }
 
+export interface SkillGroup {
+  id?: string; // Optional for UI key
+  category: string;
+  items: string;
+}
+
+export interface CustomItem {
+  title: string;
+  date: string;
+  description: string;
+}
+
+export interface CustomSection {
+  id: string;
+  title: string;
+  items: CustomItem[];
+}
+
 export interface ResumeData {
   userInfo: UserInfo;
   summary: string;
-  skills: string[];
+  skills: SkillGroup[];
   experience: Experience[];
   projects: Project[];
   leadershipRoles: LeadershipRole[];
+  customSections: CustomSection[];
+  sectionOrder: string[];
   templateSelected: 'classic' | 'modern' | 'minimal';
+  isCompact?: boolean;
 }
 
 export const initialResumeData: ResumeData = {
@@ -59,5 +81,7 @@ export const initialResumeData: ResumeData = {
   experience: [],
   projects: [],
   leadershipRoles: [],
+  customSections: [],
+  sectionOrder: ['userInfo', 'summary', 'experience', 'projects', 'skills', 'leadership'],
   templateSelected: 'modern',
 };

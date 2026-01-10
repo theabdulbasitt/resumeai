@@ -1,21 +1,38 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FileText, Mail, Lock, ArrowRight } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
+import { auth } from '@/services/api';
 
 const Login = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const navigate = useNavigate();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast.info('Authentication will be available once backend is connected.');
+    try {
+      let res;
+      if (isLogin) {
+        res = await auth.login({ email, password });
+        toast.success('Logged in successfully!');
+      } else {
+        res = await auth.register({ name, email, password });
+        toast.success('Account created successfully!');
+      }
+
+      localStorage.setItem('token', res.data.token);
+      navigate('/builder');
+    } catch (err: any) {
+      console.error(err);
+      toast.error(err.response?.data?.msg || 'Authentication failed');
+    }
   };
 
   return (

@@ -12,6 +12,14 @@ dist
 dist-ssr
 *.local
 
+.env
+node_modules/
+npm-debug.log
+*.pem
+*.key
+secrets/
+config/secrets.js
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
