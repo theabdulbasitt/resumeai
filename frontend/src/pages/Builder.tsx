@@ -8,13 +8,15 @@ import { ResumePreview } from '@/components/builder/ResumePreview';
 import { TemplateSelector } from '@/components/builder/TemplateSelector';
 import { initialResumeData, type ResumeData } from '@/types/resume';
 import { toast } from 'sonner';
-import { resume, ai } from '@/services/api';
+import { resume, ai, setApiToken } from '@/services/api';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import html2canvas from 'html2canvas';
 import { jsPDF } from 'jspdf';
+import { useClerk, useAuth, UserButton } from '@clerk/clerk-react';
 
 
 const Builder = () => {
+  const { signOut } = useClerk();
   const [resumeData, setResumeData] = useState<ResumeData>(initialResumeData);
   const [showPreview, setShowPreview] = useState(true);
   const [enhanceCount, setEnhanceCount] = useState(0);
@@ -25,9 +27,18 @@ const Builder = () => {
 
   const [isEnhancing, setIsEnhancing] = useState(false);
 
+  const { getToken, isLoaded, isSignedIn } = useAuth();
+
   useEffect(() => {
     const fetchResume = async () => {
+      if (!isLoaded || !isSignedIn) return;
+
       try {
+        const token = await getToken();
+        if (token) {
+          setApiToken(token);
+        }
+
         const res = await resume.get();
         if (res.data && Object.keys(res.data).length > 0) {
           // Merge with initial data to ensure all fields exist
@@ -37,8 +48,9 @@ const Builder = () => {
         console.error('Error fetching resume', err);
       }
     };
+
     fetchResume();
-  }, []);
+  }, [isLoaded, isSignedIn, getToken]);
 
   const handleSave = async (newData: ResumeData) => {
     setResumeData(newData);
@@ -160,17 +172,7 @@ const Builder = () => {
                 <Download className="w-4 h-4 mr-2" />
                 PDF
               </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  localStorage.removeItem('token');
-                  window.location.href = '/login';
-                }}
-                className="text-muted-foreground hover:text-destructive"
-              >
-                Sign Out
-              </Button>
+              <UserButton afterSignOutUrl="/" />
             </div>
           </div>
         </div>

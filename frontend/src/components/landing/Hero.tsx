@@ -55,7 +55,7 @@ export const Hero = () => {
             className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-12"
           >
             <Button variant="hero" size="xl" asChild>
-              <Link to="/builder">
+              <Link to="/signup">
                 Build Your Resume
                 <ArrowRight className="w-5 h-5" />
               </Link>

@@ -11,10 +11,6 @@ const api = axios.create({
 });
 
 api.interceptors.request.use((config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-        config.headers['x-auth-token'] = token;
-    }
     return config;
 });
 
@@ -22,12 +18,21 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response && error.response.status === 401) {
-            localStorage.removeItem('token');
-            window.location.href = '/login';
+            // Handle unauthorized - Clerk will handle redirect/signout
         }
         return Promise.reject(error);
     }
 );
+
+export const setApiToken = (token: string | null) => {
+    if (token) {
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        api.defaults.headers.common['x-auth-token'] = token; // Backward compatibility
+    } else {
+        delete api.defaults.headers.common['Authorization'];
+        delete api.defaults.headers.common['x-auth-token'];
+    }
+};
 
 export const auth = {
     register: (userData: any) => api.post('/auth/register', userData),

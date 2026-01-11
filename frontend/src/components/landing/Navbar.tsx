@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { ThemeToggle } from '../ThemeToggle';
+import { SignedIn, SignedOut, UserButton } from '@clerk/clerk-react';
 
 export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,16 +42,27 @@ export const Navbar = () => {
           {/* Desktop CTA */}
           <div className="hidden md:flex items-center gap-3">
             <ThemeToggle />
-            <Button variant="ghost" asChild>
-              <Link to="/login">Log in</Link>
-            </Button>
-            <Button variant="hero" asChild>
-              <Link to="/builder">Get Started</Link>
-            </Button>
+            <SignedOut>
+              <Button variant="ghost" asChild>
+                <Link to="/login">Log in</Link>
+              </Button>
+              <Button variant="hero" asChild>
+                <Link to="/signup">Get Started</Link>
+              </Button>
+            </SignedOut>
+            <SignedIn>
+              <Button variant="ghost" asChild>
+                <Link to="/builder">Dashboard</Link>
+              </Button>
+              <UserButton afterSignOutUrl="/" />
+            </SignedIn>
           </div>
 
           <div className="flex md:hidden items-center gap-2">
             <ThemeToggle />
+            <SignedIn>
+              <UserButton afterSignOutUrl="/" />
+            </SignedIn>
             <button
               onClick={() => setIsOpen(!isOpen)}
               className="p-2 text-foreground"
@@ -79,12 +91,19 @@ export const Navbar = () => {
                 Pricing
               </a>
               <div className="flex flex-col gap-2 pt-4 border-t border-border">
-                <Button variant="ghost" asChild className="justify-start">
-                  <Link to="/login">Log in</Link>
-                </Button>
-                <Button variant="hero" asChild>
-                  <Link to="/builder">Get Started</Link>
-                </Button>
+                <SignedOut>
+                  <Button variant="ghost" asChild className="justify-start">
+                    <Link to="/login">Log in</Link>
+                  </Button>
+                  <Button variant="hero" asChild>
+                    <Link to="/signup">Get Started</Link>
+                  </Button>
+                </SignedOut>
+                <SignedIn>
+                  <Button variant="hero" asChild>
+                    <Link to="/builder">Dashboard</Link>
+                  </Button>
+                </SignedIn>
               </div>
             </div>
           </motion.div>
