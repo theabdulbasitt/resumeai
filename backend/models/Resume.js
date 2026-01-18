@@ -14,6 +14,15 @@ const ResumeSchema = new mongoose.Schema({
         github: String
     },
     summary: String,
+    education: [{
+        id: String,
+        school: String,
+        degree: String,
+        location: String,
+        startDate: String,
+        endDate: String,
+        bullets: [String]
+    }],
     skills: [{
         category: String,
         items: String
@@ -33,6 +42,7 @@ const ResumeSchema = new mongoose.Schema({
         description: String,
         startDate: String,
         endDate: String,
+        url: String,
         bullets: [String]
     }],
     leadershipRoles: [{
@@ -41,7 +51,8 @@ const ResumeSchema = new mongoose.Schema({
         organization: String,
         startDate: String,
         endDate: String,
-        description: String
+        description: String,
+        bullets: [String]
     }],
     customSections: [{
         id: String,
@@ -54,12 +65,12 @@ const ResumeSchema = new mongoose.Schema({
     }],
     sectionOrder: {
         type: [String],
-        default: ['userInfo', 'summary', 'experience', 'projects', 'skills', 'leadership', 'custom', 'education']
+        default: ['userInfo', 'summary', 'education', 'experience', 'projects', 'skills', 'leadership', 'custom']
     },
     templateSelected: {
         type: String,
-        enum: ['classic', 'modern', 'minimal'],
-        default: 'modern'
+        enum: ['classic', 'modern', 'minimal', 'harvard'],
+        default: 'harvard'
     }
 }, { timestamps: true });
 

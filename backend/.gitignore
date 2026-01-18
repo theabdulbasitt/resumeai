@@ -12,6 +12,8 @@ dist
 dist-ssr
 *.local
 
+Backend_Documentation.md
+
 .env
 node_modules/
 npm-debug.log

@@ -78,6 +78,32 @@
   }
 }
 
+/* A4 Page Definition */
+.a4-page {
+  width: 210mm;
+  min-height: 297mm;
+  padding: 10mm;
+  margin: 0 auto;
+  background-color: white;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+@media print {
+  .a4-page {
+    margin: 0;
+    box-shadow: none;
+    width: 210mm;
+    height: 297mm;
+  }
+
+  @page {
+    size: A4;
+    margin: 0;
+  }
+}
+
 /* Custom Gradients */
 .bg-gradient-primary {
   @apply bg-gradient-to-br from-blue-600 to-indigo-600;

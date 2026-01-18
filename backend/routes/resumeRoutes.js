@@ -17,16 +17,19 @@ router.get('/', auth, async (req, res) => {
 // Create or Update Resume
 router.post('/', auth, async (req, res) => {
     try {
-        const { userInfo, summary, skills, experience, projects, leadershipRoles, templateSelected } = req.body;
+        const { userInfo, summary, education, skills, experience, projects, leadershipRoles, customSections, sectionOrder, templateSelected } = req.body;
 
         const resumeFields = {
             user: req.user.id,
             userInfo,
             summary,
+            education,
             skills,
             experience,
             projects,
             leadershipRoles,
+            customSections,
+            sectionOrder,
             templateSelected
         };
 

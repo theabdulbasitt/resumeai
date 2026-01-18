@@ -1,11 +1,18 @@
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Trash2, Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Trash2, Sparkles, ChevronDown, ChevronUp, Edit2, Check } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import type { ResumeData, Experience, Project, LeadershipRole, CustomSection, CustomItem } from '@/types/resume';
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import type { ResumeData, Experience, Project, LeadershipRole, CustomSection, CustomItem, Education } from '@/types/resume';
 
 interface ResumeFormProps {
   data: ResumeData;
@@ -19,17 +26,21 @@ interface ResumeFormProps {
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
 export const ResumeForm = ({ data, onChange, onEnhance, enhanceDisabled, enhanceCount = 0 }: ResumeFormProps) => {
-  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
-    userInfo: true,
-    summary: true,
-    skills: true,
-    experience: true,
-    projects: true,
-    leadership: false,
-  });
+  const [activeSection, setActiveSection] = useState<string | null>(null);
 
-  const toggleSection = (section: string) => {
-    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
+  const getSectionTitle = (sectionKey: string) => {
+    if (sectionKey === 'userInfo') return 'Personal Information';
+    if (sectionKey === 'summary') return 'Professional Summary';
+    if (sectionKey === 'skills') return 'Skills';
+    if (sectionKey === 'education') return 'Education';
+    if (sectionKey === 'experience') return 'Work Experience';
+    if (sectionKey === 'projects') return 'Projects';
+    if (sectionKey === 'leadership') return 'Leadership Roles';
+    if (sectionKey.startsWith('custom:')) {
+      const sec = data.customSections.find(s => s.id === sectionKey.split('custom:')[1]);
+      return sec ? sec.title : 'Custom Section';
+    }
+    return '';
   };
 
   const updateUserInfo = (field: keyof ResumeData['userInfo'], value: string) => {
@@ -53,6 +64,10 @@ export const ResumeForm = ({ data, onChange, onEnhance, enhanceDisabled, enhance
   };
 
   const updateExperience = (id: string, field: keyof Experience, value: any) => {
+    if (field === 'endDate' && value && !data.experience.find(exp => exp.id === id)?.startDate) {
+      toast.error('First add start date');
+      return;
+    }
     onChange({
       ...data,
       experience: data.experience.map(exp =>
@@ -81,6 +96,10 @@ export const ResumeForm = ({ data, onChange, onEnhance, enhanceDisabled, enhance
   };
 
   const updateProject = (id: string, field: keyof Project, value: any) => {
+    if (field === 'endDate' && value && !data.projects.find(proj => proj.id === id)?.startDate) {
+      toast.error('First add start date');
+      return;
+    }
     onChange({
       ...data,
       projects: data.projects.map(proj =>
@@ -104,11 +123,16 @@ export const ResumeForm = ({ data, onChange, onEnhance, enhanceDisabled, enhance
       startDate: '',
       endDate: '',
       description: '',
+      bullets: ['', '', ''],
     };
     onChange({ ...data, leadershipRoles: [...data.leadershipRoles, newRole] });
   };
 
-  const updateLeadership = (id: string, field: keyof LeadershipRole, value: string) => {
+  const updateLeadership = (id: string, field: keyof LeadershipRole, value: any) => {
+    if (field === 'endDate' && value && !data.leadershipRoles.find(role => role.id === id)?.startDate) {
+      toast.error('First add start date');
+      return;
+    }
     onChange({
       ...data,
       leadershipRoles: data.leadershipRoles.map(role =>
@@ -121,6 +145,39 @@ export const ResumeForm = ({ data, onChange, onEnhance, enhanceDisabled, enhance
     onChange({
       ...data,
       leadershipRoles: data.leadershipRoles.filter(role => role.id !== id),
+    });
+  };
+
+  const addEducation = () => {
+    const newEdu: Education = {
+      id: generateId(),
+      school: '',
+      degree: '',
+      location: '',
+      startDate: '',
+      endDate: '',
+      bullets: ['', '', ''],
+    };
+    onChange({ ...data, education: [...data.education, newEdu] });
+  };
+
+  const updateEducation = (id: string, field: keyof Education, value: any) => {
+    if (field === 'endDate' && value && !data.education.find(edu => edu.id === id)?.startDate) {
+      toast.error('First add start date');
+      return;
+    }
+    onChange({
+      ...data,
+      education: data.education.map(edu =>
+        edu.id === id ? { ...edu, [field]: value } : edu
+      ),
+    });
+  };
+
+  const removeEducation = (id: string) => {
+    onChange({
+      ...data,
+      education: data.education.filter(edu => edu.id !== id),
     });
   };
 
@@ -145,7 +202,7 @@ export const ResumeForm = ({ data, onChange, onEnhance, enhanceDisabled, enhance
       customSections: [...data.customSections, newSection],
       sectionOrder: [...data.sectionOrder, 'custom:' + newSection.id] // Use ID to identify custom sections
     });
-    setExpandedSections(prev => ({ ...prev, [`custom:${newSection.id}`]: true })); // Expand new custom section
+    setActiveSection(`custom:${newSection.id}`); // Open dialog for new section
   };
 
   const updateCustomSection = (id: string, field: keyof CustomSection, value: any) => {
@@ -201,44 +258,58 @@ export const ResumeForm = ({ data, onChange, onEnhance, enhanceDisabled, enhance
   };
 
   const SectionHeader = ({ title, section, index, isCustom = false, onDelete }: { title: string; section: string; index: number; isCustom?: boolean; onDelete?: () => void }) => (
-    <div className="flex items-center gap-2 mb-2">
-      <Button
-        variant="ghost"
-        size="icon"
-        className="h-8 w-8 shrink-0"
-        disabled={index === 0}
-        onClick={(e) => {
-          e.stopPropagation();
-          moveSection(index, 'up');
-        }}
-      >
-        <ChevronUp className="h-4 w-4" />
-      </Button>
+    <div
+      className="flex items-center gap-2 mb-2 p-3 bg-card border border-border rounded-xl cursor-pointer hover:border-primary/50 transition-colors"
+      onClick={() => setActiveSection(section)}
+    >
+      <div className="flex flex-col gap-0.5" onClick={(e) => e.stopPropagation()}>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-6 w-6 shrink-0"
+          disabled={index === 0}
+          onClick={(e) => {
+            e.stopPropagation();
+            moveSection(index, 'up');
+          }}
+        >
+          <ChevronUp className="h-4 w-4" />
+        </Button>
+        <Button
+          variant="ghost"
+          size="icon"
+          className="h-6 w-6 shrink-0"
+          disabled={index === data.sectionOrder.length - 1}
+          onClick={(e) => {
+            e.stopPropagation();
+            moveSection(index, 'down');
+          }}
+        >
+          <ChevronDown className="h-4 w-4" />
+        </Button>
+      </div>
 
-      <button
-        onClick={() => toggleSection(section)}
-        className="flex-1 flex items-center justify-between p-4 bg-secondary/50 rounded-lg hover:bg-secondary transition-colors"
-      >
-        <h3 className="font-display font-semibold text-lg text-foreground">{title}</h3>
-        {expandedSections[section] ? (
-          <ChevronUp className="w-5 h-5 text-muted-foreground" />
-        ) : (
-          <ChevronDown className="w-5 h-5 text-muted-foreground" />
-        )}
-      </button>
+      <div className="flex-1 flex items-center justify-between">
+        <span className="font-semibold text-lg">{title}</span>
+        <Edit2 className="w-4 h-4 text-muted-foreground" />
+      </div>
 
       {isCustom && onDelete && (
         <Button
-          variant="destructive"
+          variant="ghost"
           size="icon"
-          className="h-full w-10 ml-1"
-          onClick={onDelete}
+          className="h-8 w-8 text-destructive hover:text-destructive"
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete();
+          }}
         >
-          <Trash2 className="h-4 w-4" />
+          <Trash2 className="w-4 h-4" />
         </Button>
       )}
     </div>
   );
+
 
   const [enhancedBullets, setEnhancedBullets] = useState<Set<string>>(new Set());
 
@@ -413,6 +484,61 @@ export const ResumeForm = ({ data, onChange, onEnhance, enhanceDisabled, enhance
             <Plus className="w-4 h-4 mr-2" />
             Add Skill Category
           </Button>
+        </div>
+      );
+    }
+    if (sectionKey === 'education') {
+      return (
+        <div className="bg-card border border-border rounded-xl p-4 space-y-4">
+          {data.education.map((edu, index) => (
+            <motion.div
+              key={edu.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-4 bg-secondary/30 rounded-lg space-y-4"
+            >
+              <div className="flex items-center justify-between">
+                <h4 className="font-medium text-foreground">Education {index + 1}</h4>
+                <Button variant="ghost" size="sm" onClick={() => removeEducation(edu.id)} className="text-destructive hover:text-destructive"><Trash2 className="w-4 h-4" /></Button>
+              </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div><Label>School / University</Label><Input value={edu.school} onChange={e => updateEducation(edu.id, 'school', e.target.value)} placeholder="University Name" /></div>
+                <div><Label>Degree</Label><Input value={edu.degree} onChange={e => updateEducation(edu.id, 'degree', e.target.value)} placeholder="Bachelor of Science" /></div>
+                <div><Label>Location</Label><Input value={edu.location} onChange={e => updateEducation(edu.id, 'location', e.target.value)} placeholder="City, State" /></div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div><Label>Start Date</Label><Input type="month" value={edu.startDate} onChange={e => updateEducation(edu.id, 'startDate', e.target.value)} /></div>
+                  <div><Label>End Date</Label><Input type="month" value={edu.endDate} onChange={e => updateEducation(edu.id, 'endDate', e.target.value)} placeholder="Present" /></div>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label>Bullet Points (Optional)</Label>
+                {edu.bullets.map((bullet, bulletIndex) => (
+                  <div key={bulletIndex} className="relative">
+                    <Input
+                      value={bullet}
+                      onChange={e => {
+                        const newBullets = [...edu.bullets];
+                        newBullets[bulletIndex] = e.target.value;
+                        updateEducation(edu.id, 'bullets', newBullets);
+                      }}
+                      placeholder={`Bullet point ${bulletIndex + 1}`}
+                      className="pr-24"
+                    />
+                    <EnhanceButton
+                      text={bullet}
+                      id={`edu-${edu.id}-${bulletIndex}`}
+                      onUpdate={(enhanced) => {
+                        const newBullets = [...edu.bullets];
+                        newBullets[bulletIndex] = enhanced;
+                        updateEducation(edu.id, 'bullets', newBullets);
+                      }}
+                    />
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+          ))}
+          <Button onClick={addEducation} variant="outline" className="w-full"><Plus className="w-4 h-4 mr-2" />Add Education</Button>
         </div>
       );
     }
@@ -593,7 +719,33 @@ export const ResumeForm = ({ data, onChange, onEnhance, enhanceDisabled, enhance
                 <div><Label>Organization</Label><Input value={role.organization} onChange={e => updateLeadership(role.id, 'organization', e.target.value)} placeholder="Computer Science Club" /></div>
                 <div><Label>Start Date</Label><Input type="month" value={role.startDate} onChange={e => updateLeadership(role.id, 'startDate', e.target.value)} /></div>
                 <div><Label>End Date</Label><Input type="month" value={role.endDate} onChange={e => updateLeadership(role.id, 'endDate', e.target.value)} placeholder="Present" /></div>
-                <div className="md:col-span-2"><Label>Description</Label><Textarea value={role.description} onChange={e => updateLeadership(role.id, 'description', e.target.value)} placeholder="Describe your responsibilities and achievements..." rows={3} /></div>
+                <div className="md:col-span-2"><Label>Description (Optional)</Label><Textarea value={role.description} onChange={e => updateLeadership(role.id, 'description', e.target.value)} placeholder="Describe your responsibilities and achievements..." rows={3} /></div>
+              </div>
+              <div className="space-y-2">
+                <Label>Bullet Points</Label>
+                {role.bullets.map((bullet, bulletIndex) => (
+                  <div key={bulletIndex} className="relative">
+                    <Input
+                      value={bullet}
+                      onChange={e => {
+                        const newBullets = [...role.bullets];
+                        newBullets[bulletIndex] = e.target.value;
+                        updateLeadership(role.id, 'bullets', newBullets);
+                      }}
+                      placeholder={`Bullet point ${bulletIndex + 1}`}
+                      className="pr-24"
+                    />
+                    <EnhanceButton
+                      text={bullet}
+                      id={`lead-${role.id}-${bulletIndex}`}
+                      onUpdate={(enhanced) => {
+                        const newBullets = [...role.bullets];
+                        newBullets[bulletIndex] = enhanced;
+                        updateLeadership(role.id, 'bullets', newBullets);
+                      }}
+                    />
+                  </div>
+                ))}
               </div>
             </motion.div>
           ))}
@@ -674,6 +826,7 @@ export const ResumeForm = ({ data, onChange, onEnhance, enhanceDisabled, enhance
         if (sectionKey === 'userInfo') title = 'Personal Information';
         else if (sectionKey === 'summary') title = 'Professional Summary';
         else if (sectionKey === 'skills') title = 'Skills';
+        else if (sectionKey === 'education') title = 'Education';
         else if (sectionKey === 'experience') title = 'Work Experience';
         else if (sectionKey === 'projects') title = 'Projects';
         else if (sectionKey === 'leadership') title = 'Leadership Roles';
@@ -685,7 +838,7 @@ export const ResumeForm = ({ data, onChange, onEnhance, enhanceDisabled, enhance
         if (!title) return null;
 
         return (
-          <div key={sectionKey} className="section-container bg-card border border-border rounded-xl overflow-hidden">
+          <div key={sectionKey}>
             <SectionHeader
               title={title}
               section={sectionKey}
@@ -693,19 +846,6 @@ export const ResumeForm = ({ data, onChange, onEnhance, enhanceDisabled, enhance
               isCustom={isCustom}
               onDelete={isCustom ? () => removeCustomSection(sectionKey.split('custom:')[1]) : undefined}
             />
-            <AnimatePresence>
-              {expandedSections[sectionKey] && (
-                <motion.div
-                  initial={{ height: 0, opacity: 0 }}
-                  animate={{ height: 'auto', opacity: 1 }}
-                  exit={{ height: 0, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="overflow-hidden"
-                >
-                  {renderSectionContent(sectionKey)}
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
         );
       })}
@@ -715,6 +855,23 @@ export const ResumeForm = ({ data, onChange, onEnhance, enhanceDisabled, enhance
         <Plus className="w-4 h-4 mr-2" />
         Add Custom Section
       </Button>
+
+      <Sheet open={!!activeSection} onOpenChange={(open) => !open && setActiveSection(null)} modal={false}>
+        <SheetContent side="left" className="w-[100vw] sm:w-[45vw] sm:max-w-none overflow-y-auto" overlayClassName="bg-transparent pointer-events-none">
+          <SheetHeader className="flex flex-row items-center justify-between space-y-0">
+            <SheetTitle>{activeSection ? getSectionTitle(activeSection) : ''}</SheetTitle>
+            <Button size="sm" onClick={() => setActiveSection(null)} className="h-8 gap-1">
+              <Check className="w-4 h-4" />
+              Done
+            </Button>
+          </SheetHeader>
+          {activeSection && (
+            <div className="mt-6 pb-10">
+              {renderSectionContent(activeSection)}
+            </div>
+          )}
+        </SheetContent>
+      </Sheet>
     </div>
   );
 };

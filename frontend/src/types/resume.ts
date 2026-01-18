@@ -7,6 +7,16 @@ export interface UserInfo {
   github: string;
 }
 
+export interface Education {
+  id: string;
+  school: string;
+  degree: string;
+  location: string;
+  startDate: string;
+  endDate: string;
+  bullets: string[];
+}
+
 export interface Experience {
   id: string;
   company: string;
@@ -34,6 +44,7 @@ export interface LeadershipRole {
   startDate: string;
   endDate: string;
   description: string;
+  bullets: string[];
 }
 
 export interface SkillGroup {
@@ -57,13 +68,14 @@ export interface CustomSection {
 export interface ResumeData {
   userInfo: UserInfo;
   summary: string;
+  education: Education[];
   skills: SkillGroup[];
   experience: Experience[];
   projects: Project[];
   leadershipRoles: LeadershipRole[];
   customSections: CustomSection[];
   sectionOrder: string[];
-  templateSelected: 'classic' | 'modern' | 'minimal';
+  templateSelected: 'classic' | 'modern' | 'minimal' | 'harvard';
   isCompact?: boolean;
 }
 
@@ -77,11 +89,12 @@ export const initialResumeData: ResumeData = {
     github: '',
   },
   summary: '',
+  education: [],
   skills: [],
   experience: [],
   projects: [],
   leadershipRoles: [],
   customSections: [],
-  sectionOrder: ['userInfo', 'summary', 'experience', 'projects', 'skills', 'leadership'],
-  templateSelected: 'modern',
+  sectionOrder: ['userInfo', 'summary', 'education', 'experience', 'projects', 'skills', 'leadership'],
+  templateSelected: 'harvard',
 };
