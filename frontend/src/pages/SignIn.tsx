@@ -26,7 +26,7 @@ const SignInPage = () => {
                         routing="path"
                         path="/login"
                         signUpUrl="/signup"
-                        afterSignInUrl="/builder"
+                        forceRedirectUrl="/builder"
                         appearance={{
                             elements: {
                                 rootBox: "w-full",

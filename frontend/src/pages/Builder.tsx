@@ -31,12 +31,14 @@ const pdfFormatDate = (dateStr: string) => {
   return dateStr;
 };
 
+
 const pdfRenderDateRange = (startDate?: string, endDate?: string) => {
   if (!startDate) return '';
   const start = pdfFormatDate(startDate);
   const end = pdfFormatDate(endDate);
   return `${start} – ${end}`;
 };
+
 
 const Builder = () => {
   const { signOut } = useClerk();
@@ -97,12 +99,16 @@ const Builder = () => {
     fetchResume();
   }, [isLoaded, isSignedIn, getToken]);
 
-  const handleSave = async (newData: ResumeData) => {
+  const handleUpdatePreview = (newData: ResumeData) => {
     setResumeData(newData);
+  };
+
+  const handleFinalSave = async () => {
     try {
       const token = await getToken();
       if (token) setApiToken(token);
-      await resume.save(newData);
+      await resume.save(resumeData);
+      toast.success('Changes saved successfully');
     } catch (err) {
       console.error('Error saving resume', err);
       toast.error('Failed to save changes');
@@ -387,11 +393,13 @@ const Builder = () => {
     toast.success('Text PDF downloaded');
   };
 
+
   const handleDownloadPDF = async () => {
     if (!resumeRef.current) {
       toast.error('Resume preview not ready');
       return;
     }
+
 
     const toastId = toast.loading('Generating PDF...');
 
@@ -603,7 +611,8 @@ const Builder = () => {
             {/* Resume Form */}
             <ResumeForm
               data={resumeData}
-              onChange={handleSave}
+              onChange={handleUpdatePreview}
+              onSave={handleFinalSave}
               onEnhance={handleEnhance}
               enhanceDisabled={enhanceCount >= maxFreeEnhancements || isEnhancing}
               enhanceCount={enhanceCount}
@@ -635,5 +644,6 @@ const Builder = () => {
     </div>
   );
 };
+
 
 export default Builder;

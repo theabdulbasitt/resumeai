@@ -17,6 +17,7 @@ import type { ResumeData, Experience, Project, LeadershipRole, CustomSection, Cu
 interface ResumeFormProps {
   data: ResumeData;
   onChange: (data: ResumeData) => void;
+  onSave?: () => void;
   onEnhance: (text: string, callback: (enhanced: string) => void) => void;
   enhanceDisabled?: boolean;
   enhanceCount?: number;
@@ -25,7 +26,7 @@ interface ResumeFormProps {
 // Generate unique IDs
 const generateId = () => Math.random().toString(36).substr(2, 9);
 
-export const ResumeForm = ({ data, onChange, onEnhance, enhanceDisabled, enhanceCount = 0 }: ResumeFormProps) => {
+export const ResumeForm = ({ data, onChange, onSave, onEnhance, enhanceDisabled, enhanceCount = 0 }: ResumeFormProps) => {
   const [activeSection, setActiveSection] = useState<string | null>(null);
 
   const getSectionTitle = (sectionKey: string) => {
@@ -860,7 +861,10 @@ export const ResumeForm = ({ data, onChange, onEnhance, enhanceDisabled, enhance
         <SheetContent side="left" className="w-[100vw] sm:w-[45vw] sm:max-w-none overflow-y-auto" overlayClassName="bg-transparent pointer-events-none">
           <SheetHeader className="flex flex-row items-center justify-between space-y-0">
             <SheetTitle>{activeSection ? getSectionTitle(activeSection) : ''}</SheetTitle>
-            <Button size="sm" onClick={() => setActiveSection(null)} className="h-8 gap-1">
+            <Button size="sm" onClick={() => {
+              setActiveSection(null);
+              if (onSave) onSave();
+            }} className="h-8 gap-1">
               <Check className="w-4 h-4" />
               Done
             </Button>

@@ -26,7 +26,7 @@ const SignUpPage = () => {
                         routing="path"
                         path="/signup"
                         signInUrl="/login"
-                        afterSignUpUrl="/login" // Redirect to login after verification
+                        forceRedirectUrl="/builder" // Initial redirect to builder after sign up
                         appearance={{
                             elements: {
                                 rootBox: "w-full",
